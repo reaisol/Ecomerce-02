@@ -23,15 +23,14 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const [featured, categories, stats] = await Promise.all([
-    getFeaturedProducts(),
+  const [categories, stats] = await Promise.all([
     listCategories(),
     getStoreStats(),
   ])
 
   return (
     <>
-      <Hero products={featured} stats={stats} />
+      <Hero stats={stats} />
       <CategoryGrid categories={categories} />
 
       <Suspense fallback={<ProductRailSkeleton />}>

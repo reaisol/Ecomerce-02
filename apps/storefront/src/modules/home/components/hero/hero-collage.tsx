@@ -1,63 +1,81 @@
-import type { Product } from "@lib/catalog/types"
-import { formatPrice } from "@lib/util/format-price"
+import { ArrowRight } from "@medusajs/icons"
+import Image from "next/image"
+
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import ProductImage from "@modules/common/components/product-image"
 import { clx } from "@modules/common/components/ui"
+import { heroTiles, type HomeTile } from "@modules/home/lib/home-media"
 
-export const COLLAGE_SIZE = 3
-
-export const getCollageProducts = (products: Product[]) =>
-  products.filter((p) => p.thumbnail).slice(0, COLLAGE_SIZE)
-
-/** One large and two small product tiles. */
-const HeroCollage = ({ products }: { products: Product[] }) => {
-  const [lead, ...rest] = products
+/** One large and two small editorial tiles linking into the store. */
+const HeroCollage = () => {
+  const [lead, ...rest] = heroTiles
 
   return (
-    <div className="grid h-64 grid-cols-[1.6fr_1fr] grid-rows-2 gap-3 xsmall:h-80 small:h-[420px] small:gap-4">
-      <CollageTile product={lead} className="row-span-2" priority showPrice />
-      {rest.map((product) => (
-        <CollageTile key={product.id} product={product} />
+    <div className="grid h-72 grid-cols-[1.5fr_1fr] grid-rows-2 gap-3 xsmall:h-96 small:h-[460px] small:gap-4">
+      <CollageTile tile={lead} className="row-span-2" featured />
+      {rest.map((tile) => (
+        <CollageTile key={tile.href} tile={tile} />
       ))}
     </div>
   )
 }
 
 const CollageTile = ({
-  product,
+  tile,
   className,
-  priority,
-  showPrice,
+  featured,
 }: {
-  product: Product
+  tile: HomeTile
   className?: string
-  priority?: boolean
-  showPrice?: boolean
+  featured?: boolean
 }) => (
   <LocalizedClientLink
-    href={`/products/${product.slug}`}
+    href={tile.href}
     className={clx(
-      "group relative overflow-hidden rounded-2xl bg-white shadow-card transition-shadow hover:shadow-card-hover",
+      "group relative overflow-hidden rounded-2xl bg-white shadow-card-hover",
       className
     )}
   >
-    <ProductImage
-      src={product.thumbnail?.url}
-      alt={product.thumbnail?.alt ?? product.name}
-      sizes="(max-width: 1024px) 60vw, 30vw"
-      priority={priority}
-      className="transition-transform duration-300 group-hover:scale-[1.03]"
+    <Image
+      src={tile.image}
+      alt={tile.alt}
+      fill
+      priority
+      sizes={featured ? "(max-width: 1024px) 60vw, 32vw" : "(max-width: 1024px) 40vw, 20vw"}
+      className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
     />
-    {showPrice && (
-      <span className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 rounded-xl bg-white/95 px-3 py-2 shadow-card backdrop-blur">
-        <span className="truncate text-xs font-medium text-navy-900 small:text-sm">
-          {product.name}
-        </span>
-        <span className="shrink-0 text-sm font-bold text-brand-700">
-          {formatPrice(product.price)}
-        </span>
+    <span
+      aria-hidden="true"
+      className="absolute inset-0 bg-gradient-to-t from-navy-900/70 via-navy-900/10 to-transparent"
+    />
+    <span className="absolute inset-x-3 bottom-3 small:inset-x-4 small:bottom-4">
+      <span
+        className={clx(
+          "block font-display font-bold leading-tight text-white",
+          featured ? "text-lg small:text-2xl" : "text-sm small:text-base"
+        )}
+      >
+        {tile.label}
       </span>
-    )}
+      {featured && (
+        <span className="mt-1 hidden text-sm text-white/85 xsmall:block">
+          {tile.caption}
+        </span>
+      )}
+      <span
+        className={clx(
+          "mt-2 inline-flex items-center gap-1 font-semibold text-white",
+          featured
+            ? "rounded-lg bg-white/15 px-3 py-1.5 text-sm backdrop-blur-sm group-hover:bg-white/25"
+            : "text-xs"
+        )}
+      >
+        Shop now
+        <ArrowRight
+          className="transition-transform group-hover:translate-x-0.5"
+          aria-hidden="true"
+        />
+      </span>
+    </span>
   </LocalizedClientLink>
 )
 
