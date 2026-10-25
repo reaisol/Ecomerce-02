@@ -1,0 +1,87 @@
+[
+  {
+    "id": "cat-kitchen-dining",
+    "slug": "kitchen-dining",
+    "name": "Kitchen & Dining",
+    "shortDescription": "Cookware, tiffins and everyday kitchen essentials",
+    "description": "Sturdy cookware, steel tiffins and prep tools built for daily Indian cooking. Everything from pressure cookers to masala dabbas at honest prices.",
+    "image": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Kitchen_utensils-01.jpg/960px-Kitchen_utensils-01.jpg",
+      "alt": "Steel kitchen utensils hanging on a rail against yellow tiles",
+      "credit": {
+        "author": "Jeppestown",
+        "license": "CC BY-SA 2.0",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kitchen_utensils-01.jpg"
+      }
+    },
+    "sortOrder": 1
+  },
+  {
+    "id": "cat-plastic-storage",
+    "slug": "plastic-storage",
+    "name": "Plastic & Storage",
+    "shortDescription": "Crates, buckets, baskets and hangers for every home",
+    "description": "Durable plastic storage that keeps homes and shops organised. Buy single pieces or in bulk at wholesale rates.",
+    "image": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Art_of_Transportation_%286161284551%29.jpg/960px-Art_of_Transportation_%286161284551%29.jpg",
+      "alt": "A vendor's cart piled high with colourful plastic household goods",
+      "credit": {
+        "author": "Staffan Scherz",
+        "license": "CC BY 2.0",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Art_of_Transportation_(6161284551).jpg"
+      }
+    },
+    "sortOrder": 2
+  },
+  {
+    "id": "cat-cleaning-household",
+    "slug": "cleaning-household",
+    "name": "Cleaning & Household",
+    "shortDescription": "Mops, brooms and scrubbers for a spotless home",
+    "description": "Everyday cleaning tools that make sweeping, mopping and scrubbing quicker. Refills and multi-packs available for homes and offices.",
+    "image": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/%28PHOTO4%29_USO_Services_on_Facebook_Live_%286175620%29.jpg/960px-%28PHOTO4%29_USO_Services_on_Facebook_Live_%286175620%29.jpg",
+      "alt": "Cleaning liquid bottle with sponges on a kitchen counter",
+      "credit": {
+        "author": "Pfc. Robert Wormley",
+        "license": "Public domain",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:(PHOTO4)_USO_Services_on_Facebook_Live_(6175620).jpg"
+      }
+    },
+    "sortOrder": 3
+  },
+  {
+    "id": "cat-home-utility",
+    "slug": "home-utility",
+    "name": "Home Utility",
+    "shortDescription": "Extension boards, torches, scales and handy helpers",
+    "description": "Practical gear for power, light and day-to-day household jobs. Reliable products that solve small problems around the house.",
+    "image": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Light_Bulb_3.jpg/960px-Light_Bulb_3.jpg",
+      "alt": "Glowing filament light bulb against a dark background",
+      "credit": {
+        "author": "Ch Maheswara Raju",
+        "license": "CC BY-SA 4.0",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Light_Bulb_3.jpg"
+      }
+    },
+    "sortOrder": 4
+  },
+  {
+    "id": "cat-tools-imported",
+    "slug": "tools-imported",
+    "name": "Tools & Imported Products",
+    "shortDescription": "Hand tools, power tools and imported tool kits",
+    "description": "Hand tools and power tools for DIY, repair and trade work. Includes imported tool kits and gadgets at shop-floor prices.",
+    "image": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/2015_UEC_Track_Elite_European_Championships_305.JPG/960px-2015_UEC_Track_Elite_European_Championships_305.JPG",
+      "alt": "Open tool case with spanners and screwdrivers neatly arranged",
+      "credit": {
+        "author": "Nicola",
+        "license": "CC BY-SA 4.0",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:2015_UEC_Track_Elite_European_Championships_305.JPG"
+      }
+    },
+    "sortOrder": 5
+  }
+]

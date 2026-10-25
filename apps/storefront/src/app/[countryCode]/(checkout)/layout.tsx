@@ -1,6 +1,8 @@
+import { ChevronLeft, LockClosedSolid } from "@medusajs/icons"
+
+import { brand } from "@lib/brand"
+import BrandLogo from "@modules/common/components/brand-logo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import ChevronDown from "@modules/common/icons/chevron-down"
-import MedusaCTA from "@modules/layout/components/medusa-cta"
 
 export default function CheckoutLayout({
   children,
@@ -8,36 +10,46 @@ export default function CheckoutLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="w-full bg-white relative small:min-h-screen">
-      <div className="h-16 bg-white border-b ">
-        <nav className="flex h-full items-center content-container justify-between">
+    <div className="flex min-h-screen flex-col bg-surface-muted">
+      <header className="border-b border-grey-10 bg-white">
+        <nav className="content-container flex h-16 items-center justify-between gap-4">
           <LocalizedClientLink
             href="/cart"
-            className="text-small-semi text-ui-fg-base flex items-center gap-x-2 uppercase flex-1 basis-0"
+            className="flex items-center gap-1 text-sm font-medium text-grey-60 hover:text-navy-900"
             data-testid="back-to-cart-link"
           >
-            <ChevronDown className="rotate-90" size={16} />
-            <span className="mt-px hidden small:block txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base ">
-              Back to shopping cart
-            </span>
-            <span className="mt-px block small:hidden txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base">
-              Back
-            </span>
+            <ChevronLeft aria-hidden />
+            <span className="hidden xsmall:inline">Back to cart</span>
+            <span className="xsmall:hidden">Cart</span>
           </LocalizedClientLink>
-          <LocalizedClientLink
-            href="/"
-            className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
-            data-testid="store-link"
-          >
-            trushop
+          <LocalizedClientLink href="/" aria-label={`${brand.name} home`}>
+            <BrandLogo />
           </LocalizedClientLink>
-          <div className="flex-1 basis-0" />
+          <p className="flex items-center gap-1.5 text-sm font-medium text-success-700">
+            <LockClosedSolid aria-hidden />
+            <span className="hidden xsmall:inline">Secure checkout</span>
+            <span className="xsmall:hidden">Secure</span>
+          </p>
         </nav>
-      </div>
-      <div className="relative" data-testid="checkout-container">{children}</div>
-      <div className="py-4 w-full flex items-center justify-center">
-        <MedusaCTA />
-      </div>
+      </header>
+
+      <main className="flex-1" data-testid="checkout-container">
+        {children}
+      </main>
+
+      <footer className="border-t border-grey-10 bg-white">
+        <div className="content-container flex flex-col items-center justify-between gap-2 py-5 text-xs text-grey-50 xsmall:flex-row">
+          <p>
+            © {new Date().getFullYear()} {brand.name}. All rights reserved.
+          </p>
+          <p>
+            Need help?{" "}
+            <a href={`mailto:${brand.contact.email}`} className="text-brand-700 hover:underline">
+              {brand.contact.email}
+            </a>
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }

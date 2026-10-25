@@ -1,145 +1,169 @@
 "use client"
 
-import { Popover, PopoverPanel, Transition } from "@headlessui/react"
-import useToggleState from "@lib/hooks/use-toggle-state"
-import { ArrowRightMini, XMark } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react"
+import {
+  BarsThree,
+  ChevronRight,
+  Envelope,
+  Phone,
+  Tag,
+  XMark,
+} from "@medusajs/icons"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
+
+import { brand } from "@lib/brand"
+import BrandLogo from "@modules/common/components/brand-logo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { Text, clx } from "@modules/common/components/ui"
-import { Fragment } from "react"
-import CountrySelect from "../country-select"
-import LanguageSelect from "../language-select"
-import { Locale } from "@lib/data/locales"
+import { ACCOUNT_LINKS, HELP_LINKS } from "@modules/layout/lib/site-links"
+import type { NavCategory } from "@modules/layout/types/nav-category"
 
+type MenuLink = { label: string; href: string }
 
-const SideMenuItems = {
-  Home: "/",
-  Store: "/store",
-  Account: "/account",
-  Cart: "/cart",
-}
+const SideMenu = ({ categories }: { categories: NavCategory[] }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
+  const close = () => setIsOpen(false)
 
-type SideMenuProps = {
-  regions: HttpTypes.StoreRegion[] | null
-  locales: Locale[] | null
-  currentLocale: string | null
-}
-
-const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
-  const countryToggleState = useToggleState()
-  const languageToggleState = useToggleState()
+  // Covers navigations that don't come from a menu link (e.g. browser back).
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
 
   return (
-    <div className="h-full">
-      <div className="flex items-center h-full">
-        <Popover className="h-full flex">
-          {({ open, close }) => (
-            <>
-              <div className="relative flex h-full">
-                <Popover.Button
-                  data-testid="nav-menu-button"
-                  className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none hover:text-ui-fg-base"
-                >
-                  Menu
-                </Popover.Button>
-              </div>
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        aria-label="Open menu"
+        aria-expanded={isOpen}
+        className="-ml-2 flex h-11 w-11 items-center justify-center rounded-xl text-navy-900 transition-colors hover:bg-brand-50 small:hidden"
+        data-testid="nav-menu-button"
+      >
+        <BarsThree className="h-6 w-6" />
+      </button>
 
-              {open && (
-                <div
-                  className="fixed inset-0 z-[50] bg-black/0 pointer-events-auto"
-                  onClick={close}
-                  data-testid="side-menu-backdrop"
-                />
-              )}
-
-              <Transition
-                show={open}
-                as={Fragment}
-                enter="transition ease-out duration-150"
-                enterFrom="opacity-0"
-                enterTo="opacity-100 backdrop-blur-2xl"
-                leave="transition ease-in duration-150"
-                leaveFrom="opacity-100 backdrop-blur-2xl"
-                leaveTo="opacity-0"
+      <Dialog
+        open={isOpen}
+        onClose={close}
+        className="relative z-[100] small:hidden"
+      >
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-navy-900/50 transition-opacity duration-200 ease-out data-[closed]:opacity-0"
+        />
+        <div className="fixed inset-0 flex">
+          <DialogPanel
+            transition
+            className="flex h-full w-[86%] max-w-[360px] flex-col bg-white shadow-xl transition-transform duration-200 ease-out data-[closed]:-translate-x-full"
+            data-testid="nav-menu-popup"
+          >
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-grey-10 px-4">
+              <DialogTitle className="sr-only">Menu</DialogTitle>
+              <LocalizedClientLink
+                href="/"
+                onClick={close}
+                aria-label={`${brand.name} home`}
               >
-                <PopoverPanel className="flex flex-col absolute w-full pr-4 sm:pr-0 sm:w-1/3 2xl:w-1/4 sm:min-w-min h-[calc(100vh-1rem)] z-[51] inset-x-0 text-sm text-ui-fg-on-color m-2 backdrop-blur-2xl">
-                  <div
-                    data-testid="nav-menu-popup"
-                    className="flex flex-col h-full bg-[rgba(3,7,18,0.5)] rounded-rounded justify-between p-6"
-                  >
-                    <div className="flex justify-end" id="xmark">
-                      <button data-testid="close-menu-button" onClick={close}>
-                        <XMark />
-                      </button>
-                    </div>
-                    <ul className="flex flex-col gap-6 items-start justify-start">
-                      {Object.entries(SideMenuItems).map(([name, href]) => {
-                        return (
-                          <li key={name}>
-                            <LocalizedClientLink
-                              href={href}
-                              className="text-3xl leading-10 hover:text-ui-fg-disabled"
-                              onClick={close}
-                              data-testid={`${name.toLowerCase()}-link`}
-                            >
-                              {name}
-                            </LocalizedClientLink>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                    <div className="flex flex-col gap-y-6">
-                      {!!locales?.length && (
-                        <div
-                          className="flex justify-between"
-                          onMouseEnter={languageToggleState.open}
-                          onMouseLeave={languageToggleState.close}
-                        >
-                          <LanguageSelect
-                            toggleState={languageToggleState}
-                            locales={locales}
-                            currentLocale={currentLocale}
-                          />
-                          <ArrowRightMini
-                            className={clx(
-                              "transition-transform duration-150",
-                              languageToggleState.state ? "-rotate-90" : ""
-                            )}
-                          />
-                        </div>
-                      )}
-                      <div
-                        className="flex justify-between"
-                        onMouseEnter={countryToggleState.open}
-                        onMouseLeave={countryToggleState.close}
-                      >
-                        {regions && (
-                          <CountrySelect
-                            toggleState={countryToggleState}
-                            regions={regions}
-                          />
-                        )}
-                        <ArrowRightMini
-                          className={clx(
-                            "transition-transform duration-150",
-                            countryToggleState.state ? "-rotate-90" : ""
-                          )}
-                        />
-                      </div>
-                      <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} trushop. All rights
-                        reserved.
-                      </Text>
-                    </div>
-                  </div>
-                </PopoverPanel>
-              </Transition>
-            </>
-          )}
-        </Popover>
-      </div>
-    </div>
+                <BrandLogo />
+              </LocalizedClientLink>
+              <button
+                type="button"
+                onClick={close}
+                aria-label="Close menu"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-grey-60 transition-colors hover:bg-surface-muted hover:text-navy-900"
+                data-autofocus
+                data-testid="close-menu-button"
+              >
+                <XMark className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4 py-5">
+              <LocalizedClientLink
+                href="/store?sale=1"
+                onClick={close}
+                className="mb-6 flex items-center gap-3 rounded-xl bg-danger-50 px-4 py-3 text-sm font-semibold text-danger-600"
+              >
+                <Tag />
+                Today&apos;s deals
+              </LocalizedClientLink>
+
+              <MenuSection
+                title="Shop by category"
+                links={[
+                  ...categories.map((c) => ({
+                    label: c.name,
+                    href: `/categories/${c.slug}`,
+                  })),
+                  { label: "All products", href: "/store" },
+                ]}
+                onNavigate={close}
+              />
+              <MenuSection
+                title="Your account"
+                links={ACCOUNT_LINKS}
+                onNavigate={close}
+              />
+              <MenuSection title="Help" links={HELP_LINKS} onNavigate={close} />
+            </div>
+
+            <div className="space-y-2 border-t border-grey-10 bg-surface-muted px-4 py-4 text-sm text-grey-60">
+              <a
+                href={`tel:${brand.contact.phone.replace(/\s+/g, "")}`}
+                className="flex items-center gap-2 hover:text-brand-700"
+              >
+                <Phone aria-hidden="true" />
+                {brand.contact.phone}
+              </a>
+              <a
+                href={`mailto:${brand.contact.email}`}
+                className="flex items-center gap-2 hover:text-brand-700"
+              >
+                <Envelope aria-hidden="true" />
+                {brand.contact.email}
+              </a>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </>
   )
 }
+
+const MenuSection = ({
+  title,
+  links,
+  onNavigate,
+}: {
+  title: string
+  links: readonly MenuLink[]
+  onNavigate: () => void
+}) => (
+  <section className="mb-6 last:mb-0">
+    <h3 className="mb-1 px-1 text-xs font-bold uppercase tracking-[0.1em] text-grey-50">
+      {title}
+    </h3>
+    <ul>
+      {links.map((link) => (
+        <li key={link.label}>
+          <LocalizedClientLink
+            href={link.href}
+            onClick={onNavigate}
+            className="flex items-center justify-between rounded-lg px-1 py-3 text-[15px] font-medium text-navy-900 transition-colors hover:text-brand-700"
+          >
+            {link.label}
+            <ChevronRight className="text-grey-40" />
+          </LocalizedClientLink>
+        </li>
+      ))}
+    </ul>
+  </section>
+)
 
 export default SideMenu

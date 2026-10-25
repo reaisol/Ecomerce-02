@@ -1,23 +1,19 @@
-import { retrieveOrder } from "@lib/data/orders"
-import OrderCompletedTemplate from "@modules/order/templates/order-completed-template"
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
+
+import OrderConfirmation from "@modules/order/templates/order-confirmation"
 
 type Props = {
   params: Promise<{ id: string }>
 }
+
 export const metadata: Metadata = {
-  title: "Order Confirmed",
-  description: "You purchase was successful",
+  title: "Order confirmed",
+  description: "Your order has been placed successfully.",
+  robots: { index: false },
 }
 
 export default async function OrderConfirmedPage(props: Props) {
-  const params = await props.params
-  const order = await retrieveOrder(params.id).catch(() => null)
+  const { id } = await props.params
 
-  if (!order) {
-    return notFound()
-  }
-
-  return <OrderCompletedTemplate order={order} />
+  return <OrderConfirmation orderId={id} />
 }

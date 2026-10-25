@@ -1,114 +1,112 @@
-"use client"
+import { ChevronLeft, ChevronRight } from "@medusajs/icons"
 
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { clx } from "@modules/common/components/ui"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import {
+  buildListingHref,
+  type ListingFilters,
+} from "@modules/store/lib/listing-filters"
 
-export function Pagination({
-  page,
-  totalPages,
-  'data-testid': dataTestid
-}: {
-  page: number
+type PageSlot = number | "gap"
+
+/** Always shows first, last and the neighbours of the current page. */
+function getPageSlots(page: number, totalPages: number): PageSlot[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1)
+  }
+
+  const pages = new Set([1, totalPages, page - 1, page, page + 1])
+  if (page <= 3) [2, 3, 4].forEach((p) => pages.add(p))
+  if (page >= totalPages - 2) {
+    ;[totalPages - 3, totalPages - 2, totalPages - 1].forEach((p) => pages.add(p))
+  }
+
+  const sorted = Array.from(pages)
+    .filter((p) => p >= 1 && p <= totalPages)
+    .sort((a, b) => a - b)
+
+  return sorted.flatMap<PageSlot>((p, index) =>
+    index > 0 && p - sorted[index - 1] > 1 ? ["gap", p] : [p]
+  )
+}
+
+type PaginationProps = {
+  basePath: string
+  filters: ListingFilters
   totalPages: number
-  'data-testid'?: string
-}) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+}
 
-  // Helper function to generate an array of numbers within a range
-  const arrayRange = (start: number, stop: number) =>
-    Array.from({ length: stop - start + 1 }, (_, index) => start + index)
+export function Pagination({ basePath, filters, totalPages }: PaginationProps) {
+  const { page } = filters
 
-  // Function to handle page changes
-  const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams)
-    params.set("page", newPage.toString())
-    router.push(`${pathname}?${params.toString()}`)
-  }
+  if (totalPages <= 1) return null
 
-  // Function to render a page button
-  const renderPageButton = (
-    p: number,
-    label: string | number,
-    isCurrent: boolean
-  ) => (
-    <button
-      key={p}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
-        "text-ui-fg-base hover:text-ui-fg-subtle": isCurrent,
-      })}
-      disabled={isCurrent}
-      onClick={() => handlePageChange(p)}
-    >
-      {label}
-    </button>
-  )
+  const hrefFor = (target: number) =>
+    buildListingHref(basePath, filters, { page: target })
 
-  // Function to render ellipsis
-  const renderEllipsis = (key: string) => (
-    <span
-      key={key}
-      className="txt-xlarge-plus text-ui-fg-muted items-center cursor-default"
-    >
-      ...
-    </span>
-  )
+  const stepClass =
+    "flex h-10 items-center gap-1 rounded-xl px-3 text-sm font-semibold"
 
-  // Function to render page buttons based on the current page and total pages
-  const renderPageButtons = () => {
-    const buttons = []
-
-    if (totalPages <= 7) {
-      // Show all pages
-      buttons.push(
-        ...arrayRange(1, totalPages).map((p) =>
-          renderPageButton(p, p, p === page)
-        )
-      )
-    } else {
-      // Handle different cases for displaying pages and ellipses
-      if (page <= 4) {
-        // Show 1, 2, 3, 4, 5, ..., lastpage
-        buttons.push(
-          ...arrayRange(1, 5).map((p) => renderPageButton(p, p, p === page))
-        )
-        buttons.push(renderEllipsis("ellipsis1"))
-        buttons.push(
-          renderPageButton(totalPages, totalPages, totalPages === page)
-        )
-      } else if (page >= totalPages - 3) {
-        // Show 1, ..., lastpage - 4, lastpage - 3, lastpage - 2, lastpage - 1, lastpage
-        buttons.push(renderPageButton(1, 1, 1 === page))
-        buttons.push(renderEllipsis("ellipsis2"))
-        buttons.push(
-          ...arrayRange(totalPages - 4, totalPages).map((p) =>
-            renderPageButton(p, p, p === page)
-          )
-        )
-      } else {
-        // Show 1, ..., page - 1, page, page + 1, ..., lastpage
-        buttons.push(renderPageButton(1, 1, 1 === page))
-        buttons.push(renderEllipsis("ellipsis3"))
-        buttons.push(
-          ...arrayRange(page - 1, page + 1).map((p) =>
-            renderPageButton(p, p, p === page)
-          )
-        )
-        buttons.push(renderEllipsis("ellipsis4"))
-        buttons.push(
-          renderPageButton(totalPages, totalPages, totalPages === page)
-        )
-      }
-    }
-
-    return buttons
-  }
-
-  // Render the component
   return (
-    <div className="flex justify-center w-full mt-12">
-      <div className="flex gap-3 items-end" data-testid={dataTestid}>{renderPageButtons()}</div>
-    </div>
+    <nav
+      aria-label="Pagination"
+      className="mt-10 flex items-center justify-center gap-1.5"
+      data-testid="product-pagination"
+    >
+      {page > 1 ? (
+        <LocalizedClientLink
+          href={hrefFor(page - 1)}
+          className={clx(stepClass, "text-navy-900 hover:bg-white")}
+          aria-label="Previous page"
+        >
+          <ChevronLeft aria-hidden />
+          <span className="hidden xsmall:inline">Previous</span>
+        </LocalizedClientLink>
+      ) : (
+        <span className={clx(stepClass, "text-grey-30")} aria-hidden>
+          <ChevronLeft />
+          <span className="hidden xsmall:inline">Previous</span>
+        </span>
+      )}
+
+      {getPageSlots(page, totalPages).map((slot, index) =>
+        slot === "gap" ? (
+          <span key={`gap-${index}`} className="px-1 text-grey-40" aria-hidden>
+            …
+          </span>
+        ) : (
+          <LocalizedClientLink
+            key={slot}
+            href={hrefFor(slot)}
+            aria-current={slot === page ? "page" : undefined}
+            aria-label={`Page ${slot}`}
+            className={clx(
+              "flex h-10 min-w-[2.5rem] items-center justify-center rounded-xl text-sm font-semibold tabular-nums",
+              slot === page
+                ? "bg-brand-600 text-white"
+                : "text-navy-900 hover:bg-white"
+            )}
+          >
+            {slot}
+          </LocalizedClientLink>
+        )
+      )}
+
+      {page < totalPages ? (
+        <LocalizedClientLink
+          href={hrefFor(page + 1)}
+          className={clx(stepClass, "text-navy-900 hover:bg-white")}
+          aria-label="Next page"
+        >
+          <span className="hidden xsmall:inline">Next</span>
+          <ChevronRight aria-hidden />
+        </LocalizedClientLink>
+      ) : (
+        <span className={clx(stepClass, "text-grey-30")} aria-hidden>
+          <span className="hidden xsmall:inline">Next</span>
+          <ChevronRight />
+        </span>
+      )}
+    </nav>
   )
 }

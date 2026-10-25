@@ -20,6 +20,32 @@ module.exports = {
         padding: "padding-top padding-right padding-bottom padding-left",
       },
       colors: {
+        // Sampled from the logo: bag/"tru" blue #006DB0, "shop" ink #131A24.
+        brand: {
+          50: "#EAF4FB",
+          100: "#D2E7F5",
+          200: "#A6CFEB",
+          300: "#70B2DD",
+          400: "#3893CC",
+          500: "#0D7DC0",
+          600: "#006DB0",
+          700: "#005A92",
+          800: "#004A77",
+          900: "#063D61",
+        },
+        navy: {
+          700: "#2A3547",
+          800: "#1C2534",
+          900: "#131A24",
+        },
+        surface: {
+          DEFAULT: "#FFFFFF",
+          muted: "#F5F7FB",
+          subtle: "#EEF2F8",
+        },
+        success: { 50: "#ECFDF3", 600: "#16A34A", 700: "#15803D" },
+        warning: { 50: "#FFF8EB", 600: "#D97706" },
+        danger: { 50: "#FEF2F2", 600: "#DC2626" },
         grey: {
           0: "#FFFFFF",
           5: "#F9FAFB",
@@ -57,8 +83,16 @@ module.exports = {
       fontSize: {
         "3xl": "2rem",
       },
+      boxShadow: {
+        card: "0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06)",
+        "card-hover":
+          "0 4px 8px -2px rgba(16, 24, 40, 0.08), 0 12px 24px -6px rgba(16, 24, 40, 0.10)",
+        header: "0 1px 0 rgba(16, 24, 40, 0.06)",
+      },
       fontFamily: {
+        display: ["var(--font-display)", "var(--font-sans)", "sans-serif"],
         sans: [
+          "var(--font-sans)",
           "Inter",
           "-apple-system",
           "BlinkMacSystemFont",

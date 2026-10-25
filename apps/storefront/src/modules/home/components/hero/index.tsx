@@ -1,31 +1,90 @@
-import Link from "next/link"
+import { ArrowPath, StarSolid, TruckFast } from "@medusajs/icons"
 
-const Hero = ({ countryCode }: { countryCode: string }) => {
+import { commerce } from "@lib/brand"
+import type { Product } from "@lib/catalog/types"
+import { formatPrice } from "@lib/util/format-price"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { RETURN_WINDOW_DAYS } from "@modules/help/lib/policies"
+import type { StoreStats } from "@modules/home/lib/store-stats"
+
+import { clx } from "@modules/common/components/ui"
+
+import HeroCollage, { COLLAGE_SIZE, getCollageProducts } from "./hero-collage"
+
+const ctaBase =
+  "inline-flex h-12 items-center justify-center rounded-xl px-6 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+
+const numberFormatter = new Intl.NumberFormat(commerce.locale)
+
+type HeroProps = {
+  products: Product[]
+  stats: StoreStats
+}
+
+const Hero = ({ products, stats }: HeroProps) => {
+  const collage = getCollageProducts(products)
+  const hasCollage = collage.length === COLLAGE_SIZE
+
   return (
-    <section className="content-container py-5 small:py-8">
-      <div className="relative isolate min-h-[360px] overflow-hidden rounded-3xl bg-[#6610c9] px-6 py-10 text-white small:min-h-[480px] small:px-14 small:py-16">
-        <div className="absolute inset-y-0 right-0 hidden w-[51%] overflow-hidden small:block" aria-hidden="true">
-          <div className="absolute -right-20 -top-16 h-80 w-80 rotate-12 rounded-[4rem] bg-[#f6ff2f]" />
-          <div className="absolute right-12 top-16 h-36 w-36 -rotate-12 rounded-full bg-[#ff6c76]" />
-          <div className="absolute -bottom-16 left-8 h-72 w-72 rotate-12 rounded-[4rem] border-[22px] border-[#b7f2ff]" />
-          <div className="absolute bottom-16 right-20 h-32 w-52 -rotate-6 rounded-[2rem] bg-[#161616]" />
-          <div className="absolute right-36 top-44 text-8xl font-black text-white/90">+</div>
-        </div>
-        <div className="relative z-10 flex max-w-xl flex-col items-start">
-          <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-[#e9ff43]">New season, new finds</p>
-          <h1 className="max-w-lg text-4xl font-semibold leading-[0.98] tracking-[-0.045em] small:text-6xl">
-            Everyday things, anything but ordinary.
-          </h1>
-          <p className="mt-5 max-w-md text-base leading-6 text-white/80 small:text-lg">
-            Browse unique pieces, everyday essentials, and fresh arrivals picked for you.
+    <section className="content-container pt-4 small:pt-6">
+      <div
+        className={clx(
+          "grid items-center gap-8 overflow-hidden rounded-3xl bg-brand-50 px-5 py-8 xsmall:px-8 small:gap-12 small:px-14 small:py-14",
+          hasCollage && "small:grid-cols-[1.05fr_1fr]"
+        )}
+      >
+        <div>
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand-700 shadow-card">
+            <TruckFast aria-hidden="true" />
+            Delivering across India
           </p>
-          <Link href={`/${countryCode}/store`} className="mt-8 rounded-full bg-white px-6 py-3 text-sm font-bold text-grey-90 transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#e9ff43]">
-            Shop new arrivals
-          </Link>
+          <h1 className="font-display text-[2rem] font-extrabold leading-[1.1] tracking-tight text-navy-900 xsmall:text-[2.5rem] small:text-5xl medium:text-[3.5rem]">
+            Everything your home &amp; kitchen needs
+          </h1>
+          <p className="mt-4 max-w-lg text-base leading-7 text-grey-60 small:text-lg">
+            Cookware, storage, cleaning and everyday tools, picked for quality
+            and priced honestly.
+          </p>
+          <div className="mt-7 flex flex-col gap-3 xsmall:flex-row">
+            <LocalizedClientLink
+              href="/store"
+              className={`${ctaBase} bg-brand-600 text-white hover:bg-brand-700`}
+            >
+              Shop now
+            </LocalizedClientLink>
+            <LocalizedClientLink
+              href="/store?sale=1"
+              className={`${ctaBase} border border-brand-200 bg-white text-brand-700 hover:border-brand-300 hover:bg-brand-50`}
+            >
+              Today&apos;s deals
+            </LocalizedClientLink>
+          </div>
+          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-grey-70">
+            {stats.reviewCount > 0 && (
+              <li className="flex items-center gap-1.5">
+                <StarSolid className="text-warning-600" aria-hidden="true" />
+                <span>
+                  <strong className="font-semibold text-navy-900">
+                    {stats.averageRating.toFixed(1)}/5
+                  </strong>{" "}
+                  from {numberFormatter.format(stats.reviewCount)} reviews
+                </span>
+              </li>
+            )}
+            <li className="flex items-center gap-1.5">
+              <TruckFast className="text-brand-600" aria-hidden="true" />
+              Free delivery over {formatPrice(commerce.freeShippingThreshold)}
+            </li>
+            <li className="flex items-center gap-1.5">
+              <ArrowPath className="text-brand-600" aria-hidden="true" />
+              {RETURN_WINDOW_DAYS}-day easy returns
+            </li>
+          </ul>
         </div>
+        {hasCollage && <HeroCollage products={collage} />}
       </div>
     </section>
   )
 }
 
-export default Hero;
+export default Hero

@@ -1,69 +1,41 @@
-import { listProducts } from "@lib/data/products"
-import { getRegion } from "@lib/data/regions"
-import { HttpTypes } from "@medusajs/types"
-import Product from "../product-preview"
+import type { Category, Product } from "@lib/catalog/types"
+import { getRelatedProducts } from "@lib/services/product-service"
+import SectionHeading from "@modules/common/components/section-heading"
+import ProductCard from "@modules/products/components/product-card"
 
 type RelatedProductsProps = {
-  product: HttpTypes.StoreProduct
-  countryCode: string
+  product: Product
+  category: Category | null
 }
 
-export default async function RelatedProducts({
-  product,
-  countryCode,
-}: RelatedProductsProps) {
-  const region = await getRegion(countryCode)
+const RelatedProducts = async ({ product, category }: RelatedProductsProps) => {
+  const products = await getRelatedProducts(product, 4)
 
-  if (!region) {
-    return null
-  }
-
-  // edit this function to define your related products logic
-  const queryParams: HttpTypes.StoreProductListParams = {}
-  if (region?.id) {
-    queryParams.region_id = region.id
-  }
-  if (product.collection_id) {
-    queryParams.collection_id = [product.collection_id]
-  }
-  if (product.tags) {
-    queryParams.tag_id = product.tags
-      .map((t) => t.id)
-      .filter(Boolean) as string[]
-  }
-  queryParams.is_giftcard = false
-
-  const products = await listProducts({
-    queryParams,
-    countryCode,
-  }).then(({ response }) => {
-    return response.products.filter(
-      (responseProduct) => responseProduct.id !== product.id
-    )
-  })
-
-  if (!products.length) {
-    return null
-  }
+  if (!products.length) return null
 
   return (
-    <div className="product-page-constraint">
-      <div className="flex flex-col items-center text-center mb-16">
-        <span className="text-base-regular text-gray-600 mb-6">
-          Related products
-        </span>
-        <p className="text-2xl-regular text-ui-fg-base max-w-lg">
-          You might also want to check out these products.
-        </p>
-      </div>
-
-      <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8">
-        {products.map((product) => (
-          <li key={product.id}>
-            <Product region={region} product={product} />
+    <section aria-label="Related products" data-testid="related-products">
+      <SectionHeading
+        title="You may also like"
+        subtitle={category ? `More from ${category.name}` : undefined}
+        action={
+          category
+            ? { label: "View all", href: `/categories/${category.slug}` }
+            : undefined
+        }
+      />
+      <ul className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 xsmall:gap-4 small:mx-0 small:grid small:grid-cols-4 small:gap-5 small:overflow-visible small:px-0">
+        {products.map((related) => (
+          <li
+            key={related.id}
+            className="w-[46%] shrink-0 snap-start xsmall:w-[31%] small:w-auto"
+          >
+            <ProductCard product={related} />
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   )
 }
+
+export default RelatedProducts

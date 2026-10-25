@@ -1,13 +1,17 @@
 const c = require("ansi-colors");
 
-const requiredEnvs = [
-  {
-    key: "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY",
-    // TODO: we need a good doc to point this to
-    description:
-      "Learn how to create a publishable key: https://docs.medusajs.com/v2/resources/storefront-development/publishable-api-keys",
-  },
-];
+// The bundled JSON catalog (the default) needs no backend credentials.
+const usesBackendCatalog = process.env.CATALOG_DATA_SOURCE === "medusa";
+
+const requiredEnvs = usesBackendCatalog
+  ? [
+      {
+        key: "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY",
+        description:
+          "Publishable API key from the backend admin (Settings > Publishable API Keys).",
+      },
+    ]
+  : [];
 
 function checkEnvVariables() {
   const missingEnvs = requiredEnvs.filter(function (env) {

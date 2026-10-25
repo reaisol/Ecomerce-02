@@ -1,157 +1,119 @@
-import { listCategories } from "@lib/data/categories";
-import { listCollections } from "@lib/data/collections";
-import { Text, clx } from "@modules/common/components/ui";
+import { Clock, Envelope, MapPin, Phone } from "@medusajs/icons"
+import type { ReactNode } from "react"
 
-import LocalizedClientLink from "@modules/common/components/localized-client-link";
-import MedusaCTA from "@modules/layout/components/medusa-cta";
+import { brand } from "@lib/brand"
+import { listCategories } from "@lib/services/category-service"
+import BrandLogo from "@modules/common/components/brand-logo"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import PaymentMethods from "@modules/layout/components/payment-methods"
+import { HELP_LINKS, TRACK_ORDER_LINK } from "@modules/layout/lib/site-links"
+
+const CUSTOMER_CARE_LINKS = [TRACK_ORDER_LINK, ...HELP_LINKS]
 
 export default async function Footer() {
-  const { collections } = await listCollections({
-    fields: "*products",
-  });
-  const productCategories = await listCategories();
+  const categories = await listCategories()
+
+  const shopLinks = [
+    ...categories.map((c) => ({
+      label: c.name,
+      href: `/categories/${c.slug}`,
+    })),
+    { label: "All products", href: "/store" },
+    { label: "Today's deals", href: "/store?sale=1" },
+  ]
 
   return (
-    <footer className="border-t border-ui-border-base w-full">
-      <div className="content-container flex flex-col w-full">
-        <div className="flex flex-col gap-y-6 xsmall:flex-row items-start justify-between py-40">
-          <div>
-            <LocalizedClientLink
-              href="/"
-              className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
-            >
-              trushop
-            </LocalizedClientLink>
-          </div>
-          <div className="text-small-regular gap-10 md:gap-x-16 grid grid-cols-2 sm:grid-cols-3">
-            {productCategories && productCategories?.length > 0 && (
-              <div className="flex flex-col gap-y-2">
-                <span className="txt-small-plus txt-ui-fg-base">
-                  Categories
-                </span>
-                <ul
-                  className="grid grid-cols-1 gap-2"
-                  data-testid="footer-categories"
-                >
-                  {productCategories?.slice(0, 6).map((c) => {
-                    if (c.parent_category) {
-                      return;
-                    }
-
-                    const children =
-                      c.category_children?.map((child) => ({
-                        name: child.name,
-                        handle: child.handle,
-                        id: child.id,
-                      })) || null;
-
-                    return (
-                      <li
-                        className="flex flex-col gap-2 text-ui-fg-subtle txt-small"
-                        key={c.id}
-                      >
-                        <LocalizedClientLink
-                          className={clx(
-                            "hover:text-ui-fg-base",
-                            children && "txt-small-plus"
-                          )}
-                          href={`/categories/${c.handle}`}
-                          data-testid="category-link"
-                        >
-                          {c.name}
-                        </LocalizedClientLink>
-                        {children && (
-                          <ul className="grid grid-cols-1 ml-3 gap-2">
-                            {children &&
-                              children.map((child) => (
-                                <li key={child.id}>
-                                  <LocalizedClientLink
-                                    className="hover:text-ui-fg-base"
-                                    href={`/categories/${child.handle}`}
-                                    data-testid="category-link"
-                                  >
-                                    {child.name}
-                                  </LocalizedClientLink>
-                                </li>
-                              ))}
-                          </ul>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
-            {collections && collections.length > 0 && (
-              <div className="flex flex-col gap-y-2">
-                <span className="txt-small-plus txt-ui-fg-base">
-                  Collections
-                </span>
-                <ul
-                  className={clx(
-                    "grid grid-cols-1 gap-2 text-ui-fg-subtle txt-small",
-                    {
-                      "grid-cols-2": (collections?.length || 0) > 3,
-                    }
-                  )}
-                >
-                  {collections?.slice(0, 6).map((c) => (
-                    <li key={c.id}>
-                      <LocalizedClientLink
-                        className="hover:text-ui-fg-base"
-                        href={`/collections/${c.handle}`}
-                      >
-                        {c.title}
-                      </LocalizedClientLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <div className="flex flex-col gap-y-2">
-              <span className="txt-small-plus txt-ui-fg-base">Medusa</span>
-              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
-                <li>
-                  <a
-                    href="https://github.com/medusajs"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    GitHub
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://docs.medusajs.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/medusajs/dtc-starter"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    Source code
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+    <footer className="bg-navy-900 text-white/70">
+      <div className="content-container grid gap-10 py-12 small:grid-cols-[1.4fr_1fr_1fr_1.3fr] small:gap-12 small:py-16">
+        <div className="max-w-sm">
+          <LocalizedClientLink href="/" aria-label={`${brand.name} home`}>
+            <BrandLogo variant="light" />
+          </LocalizedClientLink>
+          <p className="mt-4 text-sm leading-6">{brand.description}</p>
         </div>
-        <div className="flex w-full mb-16 justify-between text-ui-fg-muted">
-          <Text className="txt-compact-small">
-            © {new Date().getFullYear()} trushop. All rights reserved.
-          </Text>
-          <MedusaCTA />
+
+        <div className="grid grid-cols-2 gap-8 small:contents">
+          <FooterColumn title="Shop">
+            {shopLinks.map((link) => (
+              <FooterLink key={link.href} {...link} />
+            ))}
+          </FooterColumn>
+          <FooterColumn title="Customer care">
+            {CUSTOMER_CARE_LINKS.map((link) => (
+              <FooterLink key={link.label} {...link} />
+            ))}
+          </FooterColumn>
+        </div>
+
+        <FooterColumn title="Contact us">
+          <ContactItem icon={<Phone />}>
+            <a
+              href={`tel:${brand.contact.phone.replace(/\s+/g, "")}`}
+              className="hover:text-white"
+            >
+              {brand.contact.phone}
+            </a>
+          </ContactItem>
+          <ContactItem icon={<Envelope />}>
+            <a
+              href={`mailto:${brand.contact.email}`}
+              className="hover:text-white"
+            >
+              {brand.contact.email}
+            </a>
+          </ContactItem>
+          <ContactItem icon={<Clock />}>{brand.contact.hours}</ContactItem>
+          <ContactItem icon={<MapPin />}>{brand.contact.address}</ContactItem>
+        </FooterColumn>
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className="content-container flex flex-col gap-4 py-6 small:flex-row small:items-center small:justify-between">
+          <PaymentMethods />
+          <p className="text-xs text-white/60">
+            &copy; {new Date().getFullYear()} {brand.name}. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
-  );
+  )
 }
+
+const FooterColumn = ({
+  title,
+  children,
+}: {
+  title: string
+  children: ReactNode
+}) => (
+  <div>
+    <h2 className="mb-4 font-display text-sm font-bold text-white">{title}</h2>
+    <ul className="space-y-3 text-sm">{children}</ul>
+  </div>
+)
+
+const FooterLink = ({ label, href }: { label: string; href: string }) => (
+  <li>
+    <LocalizedClientLink
+      href={href}
+      className="transition-colors hover:text-white"
+    >
+      {label}
+    </LocalizedClientLink>
+  </li>
+)
+
+const ContactItem = ({
+  icon,
+  children,
+}: {
+  icon: ReactNode
+  children: ReactNode
+}) => (
+  <li className="flex items-start gap-3">
+    <span className="mt-0.5 shrink-0 text-brand-300" aria-hidden="true">
+      {icon}
+    </span>
+    <span className="leading-5">{children}</span>
+  </li>
+)

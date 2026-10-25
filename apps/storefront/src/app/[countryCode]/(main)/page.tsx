@@ -1,71 +1,84 @@
 import { Metadata } from "next"
 import { Suspense } from "react"
 
-import CategoryStrip from "@modules/home/components/category-strip"
-import DiscoveryGrid from "@modules/home/components/discovery-grid"
-import FeaturedProducts from "@modules/home/components/featured-products"
+import { brand } from "@lib/brand"
+import { listCategories } from "@lib/services/category-service"
+import {
+  getBestSellers,
+  getDealProducts,
+  getFeaturedProducts,
+  getNewArrivals,
+} from "@lib/services/product-service"
+import CategoryGrid from "@modules/home/components/category-grid"
 import Hero from "@modules/home/components/hero"
-import HomeProductRailsSkeleton from "@modules/home/components/home-product-rails-skeleton"
-import { listCategories } from "@lib/data/categories"
-import { listCollections } from "@lib/data/collections"
-import { getRegion } from "@lib/data/regions"
+import ProductRail from "@modules/home/components/product-rail"
+import ProductRailSkeleton from "@modules/home/components/product-rail/skeleton"
+import PromoBanners from "@modules/home/components/promo-banners"
+import WhyChooseUs from "@modules/home/components/why-choose-us"
+import { getStoreStats } from "@modules/home/lib/store-stats"
 
 export const metadata: Metadata = {
-  title: "Discover something new",
-  description:
-    "Shop curated collections, new arrivals, and everyday favourites.",
+  title: { absolute: `${brand.name} | ${brand.tagline}` },
+  description: brand.description,
 }
 
-// Product categories and collections are refreshed at most every five minutes.
-// This keeps the homepage fast while allowing Admin inventory changes to appear
-// without a deployment.
-export const revalidate = 300
-
-export default async function Home(props: {
-  params: Promise<{ countryCode: string }>
-}) {
-  const params = await props.params
-
-  const { countryCode } = params
-
-  const [region, { collections }, categories] = await Promise.all([
-    getRegion(countryCode),
-    listCollections({
-      fields: "id,handle,title",
-      limit: "3",
-    }),
-    listCategories({
-      fields: "id,name,handle,description,parent_category",
-      limit: 30,
-    }),
+export default async function Home() {
+  const [featured, categories, stats] = await Promise.all([
+    getFeaturedProducts(),
+    listCategories(),
+    getStoreStats(),
   ])
-
-  if (!collections || !region) {
-    return null
-  }
-
-  const topLevelCategories = categories
-    .filter((category) => !category.parent_category)
-    .slice(0, 12)
 
   return (
     <>
-      <CategoryStrip
-        categories={topLevelCategories}
-        countryCode={countryCode}
-      />
-      <Hero countryCode={countryCode} />
-      <DiscoveryGrid
-        categories={topLevelCategories.slice(0, 3)}
-        countryCode={countryCode}
-      />
-      <Suspense fallback={<HomeProductRailsSkeleton />}>
-        <div className="pb-12 small:pb-20">
-          <ul className="flex flex-col">
-            <FeaturedProducts collections={collections} region={region} />
-          </ul>
-        </div>
+      <Hero products={featured} stats={stats} />
+      <CategoryGrid categories={categories} />
+
+      <Suspense fallback={<ProductRailSkeleton />}>
+        <ProductRail
+          id="featured-products"
+          title="Featured products"
+          subtitle="Hand-picked favourites for your home"
+          action={{ label: "View all", href: "/store?sort=popular" }}
+          load={getFeaturedProducts}
+        />
       </Suspense>
+
+      <Suspense>
+        <PromoBanners />
+      </Suspense>
+
+      <Suspense fallback={<ProductRailSkeleton />}>
+        <ProductRail
+          id="best-sellers"
+          title="Best sellers"
+          subtitle="What shoppers are buying the most"
+          action={{ label: "View all", href: "/store?sort=popular" }}
+          load={getBestSellers}
+        />
+      </Suspense>
+
+      <Suspense fallback={<ProductRailSkeleton />}>
+        <ProductRail
+          id="todays-deals"
+          title="Today's deals"
+          subtitle="Big savings on everyday essentials"
+          action={{ label: "See all deals", href: "/store?sale=1" }}
+          load={getDealProducts}
+        />
+      </Suspense>
+
+      <Suspense fallback={<ProductRailSkeleton />}>
+        <ProductRail
+          id="new-arrivals"
+          title="New arrivals"
+          subtitle="Fresh additions to the store"
+          action={{ label: "View all", href: "/store?sort=newest" }}
+          load={getNewArrivals}
+        />
+      </Suspense>
+
+      <WhyChooseUs />
     </>
   )
 }
