@@ -1,0 +1,4 @@
+.env*
+!.env.template
+.next
+node_modules

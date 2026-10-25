@@ -8,13 +8,19 @@ checkEnvVariables()
 const S3_HOSTNAME = process.env.MEDUSA_CLOUD_S3_HOSTNAME
 const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
 
+const fs = require("fs")
 const path = require("path")
+
+// Inside the monorepo, trace files from the workspace root; a standalone
+// checkout of this app (e.g. a direct deploy) traces from its own folder.
+const workspaceRoot = path.join(__dirname, "../../")
+const isInWorkspace = fs.existsSync(path.join(workspaceRoot, "turbo.json"))
 
 /**
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  outputFileTracingRoot: path.join(__dirname, "../../"),
+  ...(isInWorkspace && { outputFileTracingRoot: workspaceRoot }),
   reactStrictMode: true,
   transpilePackages: ["@medusajs/icons", "@medusajs/ui-preset"],
   logging: {
