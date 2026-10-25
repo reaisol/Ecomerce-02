@@ -9,7 +9,7 @@ This file records what was done in the frontend transformation and what is left,
 
 ## 1. Current status: frontend demo ready
 
-The cloned open-source storefront (`apps/storefront`) has been turned into a branded Indian e-commerce store, **trushop** (trushop.com):
+The storefront (`apps/storefront`) is a branded Indian e-commerce store, **trushop** (trushop.com):
 
 - Official logo, with colors sampled from it: brand blue `#006DB0`, ink `#131A24`
 - Mobile-first, INR pricing
@@ -140,7 +140,7 @@ Component → Service (src/lib/services/*) → CatalogRepository → Mock (JSON)
 - [ ] **Vector logo:** get an SVG version of the logo from the designer to replace the PNG crop.
 - [ ] **404 status:** unknown product/category URLs show the not-found page but return HTTP **200**, not 404, because the `loading.tsx` on those routes starts streaming first. To fix, drop or restructure those `loading.tsx` files.
 - [ ] **Image quality:** some photos are user-shot rather than studio product shots. Replace them with real product photography when available.
-- [ ] **Account area** (`/account`) is still the starter's Medusa login / orders UI. It's only lightly re-skinned and needs the backend running. Demo orders, kept in localStorage, do not appear there.
+- [ ] **Account area** (`/account`) is still the original login / orders UI. It's only lightly re-skinned and needs the backend running. Demo orders, kept in localStorage, do not appear there.
 - [ ] **Orders** exist only in the browser that placed them.
 - [ ] **Unused dependencies:** `@stripe/*` and `react-instantsearch` / `@medusajs/instantsearch-adapter` are still in `package.json`. Remove them when installing is possible.
 - [ ] Make a 768px (tablet) visual pass. Tablet currently uses the mobile layout below 1024px.
@@ -159,7 +159,7 @@ Component → Service (src/lib/services/*) → CatalogRepository → Mock (JSON)
    - The full mapping table is in `apps/storefront/src/lib/catalog/README.md`.
 3. **Seed script:**
    - Write `apps/backend/src/scripts/seed-tool-shop.ts` to import `apps/storefront/src/data/*.json`.
-   - Also remove the starter's 4 sample apparel products.
+   - Also remove the 4 sample apparel products currently in the database.
 4. **Switch the catalog:** set `CATALOG_DATA_SOURCE=medusa` in `apps/storefront/.env.local` and re-test every page. Search, price and rating filters run in memory inside the adapter, capped at 1,000 products; see the README.
 5. **Cart → Medusa cart:**
    - Keep the `useCart` API.

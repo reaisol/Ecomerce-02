@@ -1,158 +1,92 @@
 <p align="center">
-  <a href="https://www.medusajs.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/59018053/229103275-b5e482bb-4601-46e6-8142-244f531cebdb.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
-    <img alt="Medusa logo" src="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
-    </picture>
-  </a>
+  <img src="apps/storefront/public/brand/trushop-logo.png" alt="trushop" width="320" />
 </p>
-<h1 align="center">
-  Medusa DTC Starter
-</h1>
 
-<h4 align="center">
-  <a href="https://docs.medusajs.com">Documentation</a> |
-  <a href="https://www.medusajs.com">Website</a>
-</h4>
+<h1 align="center">trushop</h1>
 
 <p align="center">
-  Building blocks for digital commerce
-</p>
-<p align="center">
-  <a href="https://github.com/medusajs/medusa/blob/develop/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="Medusa is released under the MIT license." />
-  </a>
-  <a href="https://circleci.com/gh/medusajs/medusa">
-    <img src="https://circleci.com/gh/medusajs/medusa.svg?style=shield" alt="Current CircleCI build status." />
-  </a>
-  <a href="https://github.com/medusajs/medusa/blob/develop/CONTRIBUTING.md">
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" alt="PRs welcome!" />
-  </a>
-    <a href="https://www.producthunt.com/posts/medusa"><img src="https://img.shields.io/badge/Product%20Hunt-%231%20Product%20of%20the%20Day-%23DA552E" alt="Product Hunt"></a>
-  <a href="https://discord.gg/xpCwq3Kfn8">
-    <img src="https://img.shields.io/badge/chat-on%20discord-7289DA.svg" alt="Discord Chat" />
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=medusajs">
-    <img src="https://img.shields.io/twitter/follow/medusajs.svg?label=Follow%20@medusajs" alt="Follow @medusajs" />
-  </a>
+  Smart products. Better prices. Kitchen, storage, cleaning and home utility essentials, plus everyday tools, delivered across India.
 </p>
 
-# Medusa DTC Starter
+---
 
-A production-ready monorepo starter for direct-to-consumer ecommerce stores powered by Medusa and Next.js. Includes a fully featured storefront with product browsing, cart, checkout, customer accounts, and order management.
+## Overview
 
-## Features
+trushop is a direct-to-consumer e-commerce platform for the Indian market. The repository is a Turborepo monorepo with two apps:
 
-- All of [Medusa's commerce features](https://docs.medusajs.com/resources/commerce-modules)
-- Multi-region support with automatic country detection
-- Product catalog with variant selection
-- Cart with promotion codes
-- Multi-step checkout with shipping and payment
-- Customer accounts with order history and address management
-- Order transfer between accounts
+| App | Path | Stack | Port |
+|---|---|---|---|
+| Storefront | `apps/storefront` | Next.js 15 (App Router), React 19, Tailwind CSS, TypeScript | 8000 |
+| Commerce backend | `apps/backend` | Node.js commerce engine, PostgreSQL, Redis | 9000 (admin at `/app`) |
 
-## Getting Started
+### Storefront features
 
-### Deploy with Medusa Cloud
+- Homepage with hero, category cards, featured / best seller / new arrival / deal rails and promotions
+- Catalog listing with search, category, price, rating, availability and discount filters, sorting and pagination (all URL-driven)
+- Product pages with image gallery, variant selection, stock status, specifications, related and frequently-bought-together products
+- Persistent cart (drawer and page), checkout with Indian address validation and UPI / card / net banking / cash on delivery, order confirmation
+- INR pricing with Indian number formatting; mobile-first responsive design
 
-The fastest way to get started is deploying with [Medusa Cloud](https://cloud.medusajs.com):
+## Architecture
 
-1. [Create a Medusa Cloud account](https://cloud.medusajs.com)
-2. Deploy this starter directly from your dashboard
+The UI never talks to a data source directly:
 
-### Local Installation
-
-> **Prerequisites:
->
-> - [Node.js](https://nodejs.org/) v20+
-> - [PostgreSQL](https://www.postgresql.org/) v15+
-> - [pnpm](https://pnpm.io/) v10+
-
-1. Clone the repository and install dependencies:
-
-```bash
-git clone https://github.com/medusajs/dtc-starter.git
-cd dtc-starter
-pnpm install
+```
+Component → Service (src/lib/services) → CatalogRepository → JSON catalog | Commerce API
 ```
 
-2. Set up environment variables for the backend:
+- `CATALOG_DATA_SOURCE=mock` (default) serves the bundled catalog in `apps/storefront/src/data`.
+- `CATALOG_DATA_SOURCE=medusa` reads the commerce backend's Store API.
+
+Switching sources requires no UI changes. See `apps/storefront/src/lib/catalog/README.md` for the data model and field mapping, and `docs/tool-shop-progress.md` for the current status and roadmap.
+
+## Getting started
+
+**Prerequisites:** Node.js 22+, npm 11+, Docker (for PostgreSQL and Redis).
 
 ```bash
-cp apps/backend/.env.template apps/backend/.env
-```
+# 1. Install dependencies (from the repo root)
+npm install
 
-3. Set the database URL in `apps/backend.env`:
+# 2. Start PostgreSQL and Redis
+docker run -d --name true-shop-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=medusa-true-shop -p 5433:5432 -v true-shop-pgdata:/var/lib/postgresql/data postgres:16
+docker run -d --name true-shop-redis -p 6379:6379 redis:7
 
-```bash
-# Replace with actual database URL, make sure the database exists.
-DATABASE_URL=postgres://postgres:@localhost:5432/medusa-dtc-starter
-```
-
-4. Run migrations:
-
-```bash
-cd apps/backend
-pnpm medusa db:migrate
-```
-
-5. Add admin user:
-
-```bash
-cd apps/backend
-pnpm medusa user -e admin@test.com -p supersecret
-```
-
-6. Start Medusa backend:
-
-```bash
-cd apps/backend
-pnpm dev
-```
-
-7. Open the admin dashboard at `localhost:9000/app` and log in. Retrieve your publishable API key at Settings > Publishable API key.
-
-8. Set up environment variables for the storefront:
-
-```bash
+# 3. Configure environment
+cp apps/backend/.env.template apps/backend/.env            # set DATABASE_URL
 cp apps/storefront/.env.template apps/storefront/.env.local
+
+# 4. Prepare the database and an admin user
+cd apps/backend
+npx medusa db:migrate
+npx medusa user -e admin@example.com -p <password>
+cd ../..
+
+# 5. Run everything
+npm run dev
 ```
 
-9. Update `apps/storefront/.env.local` with your Medusa publishable API key:
+- Storefront: http://localhost:8000
+- Admin: http://localhost:9000/app
 
-```bash
-NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_6c3...
-```
+The storefront also runs on its own (`npm run storefront:dev`) with the JSON catalog; only the account area needs the backend.
 
-10.  Start storefront:
+## Scripts
 
-```bash
-cd apps/storefront
-pnpm dev
-```
+| Command | Description |
+|---|---|
+| `npm run dev` | Run backend and storefront |
+| `npm run storefront:dev` | Storefront only |
+| `npm run backend:dev` | Backend only |
+| `npm run build` | Build all apps |
+| `npm run lint` | Lint all apps |
+| `npm run test` | Backend test suites |
 
-The storefront runs on `http://localhost:8000`.
+## Deployment
 
-You can slo run the following command from the root to start both backend and storefront:
+The storefront deploys to Vercel with **Root Directory** set to `apps/storefront` and the environment variables from `apps/storefront/.env.template`.
 
-```bash
-pnpm dev
-```
+## Branding
 
-## Configuration
-
-The storefront is configured via environment variables in `apps/storefront/.env.local`:
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` | Publishable API key from your Medusa backend | — |
-| `NEXT_PUBLIC_MEDUSA_BACKEND_URL` | URL of your Medusa backend | `http://localhost:9000` |
-| `NEXT_PUBLIC_DEFAULT_REGION` | Default region country code | `dk` |
-| `NEXT_PUBLIC_BASE_URL` | Base URL of the storefront | `https://localhost:8000` |
-| `NEXT_PUBLIC_STRIPE_KEY` | Stripe publishable key (optional) | — |
-
-## Resources
-
-- [Medusa Documentation](https://docs.medusajs.com)
-- [Medusa Cloud](https://cloud.medusajs.com)
+Store name, logo, contact details and commerce settings (currency, shipping thresholds, fees) live in `apps/storefront/src/lib/brand.ts`. Brand colors are defined in `apps/storefront/tailwind.config.js`.
