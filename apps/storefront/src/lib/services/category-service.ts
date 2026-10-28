@@ -13,9 +13,14 @@ export const listCategories = cache(async () => {
   }
 })
 
-export const getCategoryBySlug = cache((slug: string) =>
-  catalogRepository.getCategoryBySlug(slug)
-)
+export const getCategoryBySlug = cache(async (slug: string) => {
+  try {
+    return await catalogRepository.getCategoryBySlug(slug)
+  } catch (error) {
+    console.warn(`Failed to get category by slug "${slug}":`, error)
+    return null
+  }
+})
 
 export async function getCategoryById(id: string) {
   const categories = await listCategories()
