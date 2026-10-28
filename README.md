@@ -32,13 +32,13 @@ trushop is a direct-to-consumer e-commerce platform for the Indian market. The r
 The UI never talks to a data source directly:
 
 ```
-Component → Service (src/lib/services) → CatalogRepository → JSON catalog | Commerce API
+Component → Service (src/lib/services) → CatalogRepository → Medusa Store API
 ```
 
-- `CATALOG_DATA_SOURCE=mock` (default) serves the bundled catalog in `apps/storefront/src/data`.
-- `CATALOG_DATA_SOURCE=medusa` reads the commerce backend's Store API.
+- Products, categories, thumbnails and galleries are loaded from the backend.
+- Local catalog JSON files and the mock provider have been removed.
 
-Switching sources requires no UI changes. See `apps/storefront/src/lib/catalog/README.md` for the data model and field mapping, and `docs/tool-shop-progress.md` for the current status and roadmap.
+See `apps/storefront/src/lib/catalog/README.md` for backend configuration and the Devotional category setup. Older progress documents describe the previous demo catalog.
 
 ## Getting started
 
@@ -70,7 +70,7 @@ npm run dev
 - Storefront: http://localhost:8000
 - Admin: http://localhost:9000/app
 
-The storefront also runs on its own (`npm run storefront:dev`) with the JSON catalog; only the account area needs the backend.
+The storefront requires the backend and a configured publishable API key. Category and product changes appear on page refresh. Devotional begins empty until products are assigned in admin.
 
 ## Scripts
 

@@ -1,6 +1,6 @@
-# trushop backend
+# Trushop.co.in backend
 
-Commerce backend for trushop: products, inventory, pricing, carts, orders, customers and the admin dashboard.
+Commerce backend for Trushop.co.in: products, inventory, pricing, carts, orders, customers and the admin dashboard.
 
 - Runtime: Node.js 20+, PostgreSQL 15+, Redis
 - API: Store API (`/store/*`) for the storefront, Admin API (`/admin/*`) and admin UI at `/app`

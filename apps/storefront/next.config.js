@@ -22,6 +22,17 @@ const isInWorkspace = fs.existsSync(path.join(workspaceRoot, "turbo.json"))
 const nextConfig = {
   ...(isInWorkspace && { outputFileTracingRoot: workspaceRoot }),
   reactStrictMode: true,
+  webpack(config, { dev, isServer }) {
+    if (dev && !isServer) {
+      // Next 15's CSS HMR load/error callbacks can race with stylesheet cleanup.
+      // Guard only the bundled development helper; production is unchanged.
+      config.module.rules.push({
+        test: /mini-css-extract-plugin[\\/]hmr[\\/]hotModuleReplacement\.js$/,
+        use: [{ loader: path.join(__dirname, "scripts/css-hmr-guard-loader.cjs") }],
+      })
+    }
+    return config
+  },
   transpilePackages: ["@medusajs/icons", "@medusajs/ui-preset"],
   logging: {
     fetches: {

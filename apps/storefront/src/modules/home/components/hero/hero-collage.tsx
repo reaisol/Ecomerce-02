@@ -32,17 +32,28 @@ const CollageTile = ({
     href={tile.href}
     className={clx(
       "group relative overflow-hidden rounded-2xl bg-white shadow-card-hover",
-      className
+      className,
     )}
   >
-    <Image
-      src={tile.image}
-      alt={tile.alt}
-      fill
-      priority
-      sizes={featured ? "(max-width: 1024px) 60vw, 32vw" : "(max-width: 1024px) 40vw, 20vw"}
-      className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-    />
+    {tile.image ? (
+      <Image
+        src={tile.image}
+        alt={tile.alt}
+        fill
+        priority
+        sizes={
+          featured
+            ? "(max-width: 1024px) 60vw, 32vw"
+            : "(max-width: 1024px) 40vw, 20vw"
+        }
+        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+      />
+    ) : (
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-br from-brand-600 to-navy-900"
+      />
+    )}
     <span
       aria-hidden="true"
       className="absolute inset-0 bg-gradient-to-t from-navy-900/70 via-navy-900/10 to-transparent"
@@ -51,7 +62,7 @@ const CollageTile = ({
       <span
         className={clx(
           "block font-display font-bold leading-tight text-white",
-          featured ? "text-lg small:text-2xl" : "text-sm small:text-base"
+          featured ? "text-lg small:text-2xl" : "text-sm small:text-base",
         )}
       >
         {tile.label}
@@ -66,7 +77,7 @@ const CollageTile = ({
           "mt-2 inline-flex items-center gap-1 font-semibold text-white",
           featured
             ? "rounded-lg bg-white/15 px-3 py-1.5 text-sm backdrop-blur-sm group-hover:bg-white/25"
-            : "text-xs"
+            : "text-xs",
         )}
       >
         Shop now

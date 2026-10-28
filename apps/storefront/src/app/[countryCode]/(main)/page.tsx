@@ -15,7 +15,6 @@ import ProductRail from "@modules/home/components/product-rail"
 import ProductRailSkeleton from "@modules/home/components/product-rail/skeleton"
 import PromoBanners from "@modules/home/components/promo-banners"
 import WhyChooseUs from "@modules/home/components/why-choose-us"
-import { getStoreStats } from "@modules/home/lib/store-stats"
 
 export const metadata: Metadata = {
   title: { absolute: `${brand.name} | ${brand.tagline}` },
@@ -23,14 +22,11 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const [categories, stats] = await Promise.all([
-    listCategories(),
-    getStoreStats(),
-  ])
+  const categories = await listCategories()
 
   return (
     <>
-      <Hero stats={stats} />
+      <Hero />
       <CategoryGrid categories={categories} />
 
       <Suspense fallback={<ProductRailSkeleton />}>

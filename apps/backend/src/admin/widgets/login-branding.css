@@ -1,0 +1,37 @@
+/* Scope the native header replacement to the login card containing our widget.
+ * Medusa 2.21 renders its avatar and heading as the card's first two children.
+ * Keep the provider forms, MFA flow and password recovery owned by Medusa.
+ */
+div:has(> div > .trushop-login-brand) > :nth-child(-n + 2) {
+  display: none;
+}
+
+.trushop-login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.trushop-login-brand img {
+  width: 230px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  margin-bottom: 24px;
+}
+
+.trushop-login-brand h1 {
+  color: var(--fg-base);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.trushop-login-brand p {
+  color: var(--fg-subtle);
+  font-size: 13px;
+  line-height: 20px;
+  margin-top: 4px;
+}

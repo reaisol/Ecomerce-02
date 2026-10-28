@@ -44,8 +44,8 @@ export default async function initial_data_seed({
     input: {
       salesChannelsData: [
         {
-          name: "Default Sales Channel",
-          description: "Created by Medusa",
+          name: "Trushop.co.in Sales Channel",
+          description: "Primary sales channel for Trushop.co.in",
         },
       ],
     },
@@ -78,7 +78,7 @@ export default async function initial_data_seed({
     input: {
       stores: [
         {
-          name: "Default Store",
+          name: "Trushop.co.in",
           supported_currencies: [
             {
               currency_code: "eur",

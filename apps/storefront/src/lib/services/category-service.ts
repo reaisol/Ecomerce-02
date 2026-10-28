@@ -4,7 +4,14 @@ import { cache } from "react"
 
 import { catalogRepository } from "@lib/catalog/repositories"
 
-export const listCategories = cache(() => catalogRepository.listCategories())
+export const listCategories = cache(async () => {
+  try {
+    return await catalogRepository.listCategories()
+  } catch (error) {
+    console.warn("Failed to load categories during build or request:", error)
+    return []
+  }
+})
 
 export const getCategoryBySlug = cache((slug: string) =>
   catalogRepository.getCategoryBySlug(slug)

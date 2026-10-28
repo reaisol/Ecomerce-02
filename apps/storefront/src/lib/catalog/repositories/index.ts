@@ -1,16 +1,13 @@
 import "server-only"
 
 import { MedusaCatalogRepository } from "./medusa"
-import { MockCatalogRepository } from "./mock"
 import type { CatalogRepository } from "./types"
 
 /**
- * Selects the catalog data source from `CATALOG_DATA_SOURCE`:
- * - `mock` (default) serves the bundled JSON catalog in `src/data`
- * - `medusa` reads the Medusa Store API (see `../README.md`)
+ * Medusa is the only catalog source. Products and categories are managed
+ * in the backend admin; no local JSON fallback is used.
  */
 const repositories: Record<string, () => CatalogRepository> = {
-  mock: () => new MockCatalogRepository(),
   medusa: () =>
     new MedusaCatalogRepository({
       baseUrl:
@@ -20,13 +17,13 @@ const repositories: Record<string, () => CatalogRepository> = {
     }),
 }
 
-const source = process.env.CATALOG_DATA_SOURCE ?? "mock"
+const source = "medusa"
 
 if (!repositories[source]) {
   throw new Error(
     `Unknown CATALOG_DATA_SOURCE "${source}". Expected one of: ${Object.keys(
-      repositories
-    ).join(", ")}`
+      repositories,
+    ).join(", ")}`,
   )
 }
 

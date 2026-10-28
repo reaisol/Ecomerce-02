@@ -2,8 +2,6 @@ import { getCategoryBySlug } from "@lib/services/category-service"
 import { getPriceRange, listProducts } from "@lib/services/product-service"
 import { formatPrice, getDiscountPercent } from "@lib/util/format-price"
 
-import { promoImages } from "@modules/home/lib/home-media"
-
 import PromoBanner from "./promo-banner"
 
 /** Merchandising slots; the copy is derived from live catalog data so offers stay truthful. */
@@ -18,7 +16,7 @@ async function getMaxDiscount(categoryId: string) {
   })
   return Math.max(
     0,
-    ...items.map((p) => getDiscountPercent(p.price, p.compareAtPrice))
+    ...items.map((p) => getDiscountPercent(p.price, p.compareAtPrice)),
   )
 }
 
@@ -53,7 +51,7 @@ const PromoBanners = async () => {
             }
             description={kitchen.shortDescription}
             href={`/categories/${kitchen.slug}`}
-            image={promoImages.kitchen}
+            image={kitchen.image}
           />
         )}
         {storage && (

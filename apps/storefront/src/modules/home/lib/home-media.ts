@@ -2,11 +2,11 @@
  * Editorial imagery for the homepage, kept apart from catalog data so
  * merchandising visuals can change without touching products. Images are
  * served from /public/images/home; the suit portrait was supplied by the user.
- * The remaining photos are CC0 (StockSnap / rawpixel).
+ * Other tiles use text until replacement photography is supplied.
  */
 
 export type HomeTile = {
-  image: string
+  image?: string
   alt: string
   label: string
   caption: string
@@ -22,24 +22,15 @@ export const heroTiles: [HomeTile, HomeTile, HomeTile] = [
     href: "/store",
   },
   {
-    image: "/images/home/toaster.jpg",
-    alt: "White pop-up toaster with a slice of toast",
-    label: "Home appliances",
-    caption: "Smart helpers for busy mornings",
-    href: "/categories/home-utility",
+    alt: "Devotional",
+    label: "Devotional",
+    caption: "Explore our devotional collection",
+    href: "/categories/devotional",
   },
   {
-    image: "/images/home/blender.jpg",
-    alt: "Blender jar filled with fresh oranges and strawberries",
+    alt: "Today's deals",
     label: "Today's deals",
     caption: "Big savings on daily-use products",
     href: "/store?sale=1",
   },
 ]
-
-export const promoImages = {
-  kitchen: {
-    url: "/images/home/skillet.jpg",
-    alt: "Red cast iron skillet on a stove top",
-  },
-}

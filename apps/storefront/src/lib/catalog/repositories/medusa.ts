@@ -35,7 +35,21 @@ const MAX_SCAN = 1000
 /** Stock reported for variants whose inventory Medusa does not track. */
 const UNTRACKED_STOCK = 999
 const NEW_ARRIVAL_DAYS = 30
-const REVALIDATE_SECONDS = 60
+// Hide legacy sample photography; admin-uploaded replacements remain visible.
+function catalogImageUrl(url?: string | null) {
+  if (!url) return undefined
+  try {
+    const host = new URL(url, "http://localhost").hostname
+    if (
+      host.endsWith("wikimedia.org") ||
+      host === "medusa-public-images.s3.eu-west-1.amazonaws.com"
+    )
+      return undefined
+  } catch {
+    return undefined
+  }
+  return url
+}
 
 const PRODUCT_FIELDS = [
   "*variants.calculated_price",
@@ -100,7 +114,7 @@ function metaRecord(meta: Metadata, key: string): Record<string, string> {
   const value = metaJson(meta, key)
   if (!value || typeof value !== "object" || Array.isArray(value)) return {}
   return Object.fromEntries(
-    Object.entries(value).map(([name, item]) => [name, String(item)])
+    Object.entries(value).map(([name, item]) => [name, String(item)]),
   )
 }
 
@@ -110,9 +124,9 @@ function firstSentence(text: string) {
 }
 
 function toImages(product: MedusaProduct): ProductImage[] {
-  const images = [...(product.images ?? [])].sort(
-    (a, b) => (a.rank ?? 0) - (b.rank ?? 0)
-  )
+  const images = [...(product.images ?? [])]
+    .filter((image) => catalogImageUrl(image.url))
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
   return images.map((image, index) => ({
     url: image.url,
     alt: index === 0 ? product.title : `${product.title} - image ${index + 1}`,
@@ -128,14 +142,14 @@ function toStock(variant: MedusaVariant) {
 
 function toVariant(
   variant: MedusaVariant,
-  hasOptions: boolean
+  hasOptions: boolean,
 ): ProductVariant {
   const price = variant.calculated_price
   const amount = Math.round(price?.calculated_amount ?? 0)
   const original = Math.round(
     price?.original_amount ??
       metaNumber(variant.metadata, "compareAtPrice") ??
-      0
+      0,
   )
 
   return {
@@ -146,7 +160,7 @@ function toVariant(
           (variant.options ?? []).map((value) => [
             value.option?.title ?? value.option_id ?? "Option",
             value.value,
-          ])
+          ]),
         )
       : {},
     price: amount,
@@ -172,7 +186,7 @@ function toProduct(product: MedusaProduct, currency: string): Product {
   // Medusa gives single-variant products a placeholder "Default option".
   const hasOptions = (product.variants?.length ?? 0) > 1
   const variants = (product.variants ?? []).map((variant) =>
-    toVariant(variant, hasOptions)
+    toVariant(variant, hasOptions),
   )
   const cheapest = variants.length
     ? variants.reduce((min, v) => (v.price < min.price ? v : min))
@@ -199,8 +213,8 @@ function toProduct(product: MedusaProduct, currency: string): Product {
       product.variants?.[0]?.calculated_price?.currency_code?.toUpperCase() ??
       currency,
     images,
-    thumbnail: product.thumbnail
-      ? { url: product.thumbnail, alt: product.title }
+    thumbnail: catalogImageUrl(product.thumbnail)
+      ? { url: product.thumbnail!, alt: product.title }
       : images[0],
     rating: metaNumber(meta, "rating") ?? 0,
     reviewCount: metaNumber(meta, "reviewCount") ?? 0,
@@ -257,7 +271,7 @@ function paginate<T>(
   items: T[],
   total: number,
   page: number,
-  limit: number
+  limit: number,
 ): PaginatedResult<T> {
   return {
     items,
@@ -269,8 +283,6 @@ function paginate<T>(
 }
 
 export class MedusaCatalogRepository implements CatalogRepository {
-  private region?: Promise<HttpTypes.StoreRegion>
-
   constructor(private readonly options: MedusaCatalogOptions) {}
 
   async listProducts(query: ProductQuery): Promise<PaginatedResult<Product>> {
@@ -297,7 +309,7 @@ export class MedusaCatalogRepository implements CatalogRepository {
       matching.slice(start, start + limit),
       matching.length,
       page,
-      limit
+      limit,
     )
   }
 
@@ -332,7 +344,7 @@ export class MedusaCatalogRepository implements CatalogRepository {
       limit: String(MAX_SCAN),
     })
     const categories = await Promise.all(
-      product_categories.map((category) => this.toCategory(category))
+      product_categories.map((category) => this.toCategory(category)),
     )
     return categories.sort((a, b) => a.sortOrder - b.sortOrder)
   }
@@ -358,7 +370,7 @@ export class MedusaCatalogRepository implements CatalogRepository {
 
   private async toCategory(category: MedusaCategory): Promise<Category> {
     const meta = category.metadata
-    const imageUrl = metaString(meta, "image")
+    const imageUrl = catalogImageUrl(metaString(meta, "image"))
     const description = category.description ?? ""
     const { count } = await this.request<{ count: number }>("/store/products", {
       "category_id[]": category.id,
@@ -397,7 +409,7 @@ export class MedusaCatalogRepository implements CatalogRepository {
 
     if (total > MAX_SCAN) {
       console.warn(
-        `[catalog] Medusa query matched ${total} products; only the newest ${MAX_SCAN} were filtered and sorted.`
+        `[catalog] Medusa query matched ${total} products; only the newest ${MAX_SCAN} were filtered and sorted.`,
       )
     }
     return products
@@ -422,11 +434,7 @@ export class MedusaCatalogRepository implements CatalogRepository {
   }
 
   private getRegion() {
-    this.region ??= this.resolveRegion().catch((error) => {
-      this.region = undefined
-      throw error
-    })
-    return this.region
+    return this.resolveRegion()
   }
 
   private async resolveRegion() {
@@ -435,13 +443,13 @@ export class MedusaCatalogRepository implements CatalogRepository {
     }>("/store/regions", { limit: "100" })
     const region = this.options.regionId
       ? regions.find((r) => r.id === this.options.regionId)
-      : regions.find((r) => r.currency_code === "inr") ?? regions[0]
+      : (regions.find((r) => r.currency_code === "inr") ?? regions[0])
 
     if (!region) {
       throw new Error(
         this.options.regionId
           ? `Medusa region "${this.options.regionId}" was not found`
-          : "Medusa has no regions configured; prices cannot be calculated"
+          : "Medusa has no regions configured; prices cannot be calculated",
       )
     }
     return region
@@ -449,7 +457,7 @@ export class MedusaCatalogRepository implements CatalogRepository {
 
   private async request<T>(
     path: string,
-    params: Record<string, string | string[]>
+    params: Record<string, string | string[]>,
   ): Promise<T> {
     const url = new URL(path, this.options.baseUrl)
     for (const [key, value] of Object.entries(params)) {
@@ -460,7 +468,7 @@ export class MedusaCatalogRepository implements CatalogRepository {
     try {
       response = await fetch(url, {
         headers: { "x-publishable-api-key": this.options.publishableKey },
-        next: { revalidate: REVALIDATE_SECONDS, tags: ["catalog"] },
+        next: { revalidate: 60, tags: ["catalog"] },
       })
     } catch (error) {
       throw new Error(`Medusa catalog request failed: GET ${url.pathname}`, {
@@ -473,7 +481,7 @@ export class MedusaCatalogRepository implements CatalogRepository {
       throw new Error(
         `Medusa catalog request failed: GET ${url.pathname} responded ${
           response.status
-        } ${body.slice(0, 200)}`
+        } ${body.slice(0, 200)}`,
       )
     }
     return response.json() as Promise<T>

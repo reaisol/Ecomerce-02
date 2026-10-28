@@ -1,7 +1,7 @@
 const c = require("ansi-colors");
 
-// The bundled JSON catalog (the default) needs no backend credentials.
-const usesBackendCatalog = process.env.CATALOG_DATA_SOURCE === "medusa";
+// Products and categories always use the backend.
+const usesBackendCatalog = true;
 
 const requiredEnvs = usesBackendCatalog
   ? [
