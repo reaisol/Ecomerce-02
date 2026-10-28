@@ -1,7 +1,8 @@
 /**
  * Editorial imagery for the homepage, kept apart from catalog data so
- * merchandising visuals can change without touching products. Photos are
- * CC0 (StockSnap / rawpixel) and served from /public/images/home.
+ * merchandising visuals can change without touching products. Images are
+ * served from /public/images/home; the suit portrait was supplied by the user.
+ * The remaining photos are CC0 (StockSnap / rawpixel).
  */
 
 export type HomeTile = {
@@ -14,11 +15,11 @@ export type HomeTile = {
 
 export const heroTiles: [HomeTile, HomeTile, HomeTile] = [
   {
-    image: "/images/home/kettle.jpg",
-    alt: "Polished stainless steel kettle on a gas stove",
-    label: "Kitchen essentials",
-    caption: "Cookware, kettles and everyday tools",
-    href: "/categories/kitchen-dining",
+    image: "/images/home/suitings-shirtings.jpeg",
+    alt: "Man wearing a navy suit jacket and white shirt",
+    label: "Suitings and Shirtings",
+    caption: "Suits and shirts for a refined look",
+    href: "/store",
   },
   {
     image: "/images/home/toaster.jpg",
