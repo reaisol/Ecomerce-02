@@ -13,7 +13,7 @@
     "trushop.co.in"
   ],
   "scripts": {
-    "build": "medusa build",
+    "build": "medusa build && cp -r .medusa/server/public .",
     "start": "medusa start",
     "dev": "medusa develop",
     "lint": "medusa lint",
